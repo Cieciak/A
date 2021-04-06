@@ -18,6 +18,7 @@ T_DIV = 'DIV'
 T_JUM = 'JUMP'
 T_JIZ = 'JUMP_IF_ZERO'
 T_JIS = 'JUMP_IF_SMALLER'
+T_JUS = 'JUMP_TO_SAVED'
 
 T_PRI = 'PRINT'
 T_PRC = 'PRINT_CHAR'
@@ -26,11 +27,12 @@ T_INP = 'INPUT'
 T_INC = 'INPUT_CHAR'
 
 T_NUL = 'NULL'
+T_SAV = 'SAVE'
 
 
 # System func
 def create_grid(size):
-    return zeros(size, dtype='int32')
+    return zeros(size, dtype='float64')
 
 # Fixed
 def pick_arguments(string):
@@ -59,6 +61,7 @@ class Pointer:
     def __init__(self):
         self.pos = None
         self.val = None
+        self.save = None
 
 # Error
 class Error:
@@ -94,6 +97,12 @@ class UserInputError(Error):
     def __init__(self, place = None, details = None):
         super().__init__('User Input', place = place, details = details)
 
+class MathError(Error):
+
+    def __init__(self, place = None, details = None):
+        super().__init__('Math', place = place, details = details)
+
+
 # Lexer
 class Lexer:
 
@@ -101,6 +110,7 @@ class Lexer:
         self.code = code.replace('|', '\n').split('\n')
         self.pos_in_code = -1
         self.current_instr = None
+        self.infunc = False
         self.advance()
     
     def advance(self):
@@ -182,6 +192,14 @@ class Lexer:
                 self.tokens.append(Token(T_INC, pick_arguments(self.current_instr)))
                 self.advance()
 
+            elif self.current_instr.startswith('jus'):
+                self.tokens.append(Token(T_JUS, pick_arguments(self.current_instr)))
+                self.advance()
+
+            elif self.current_instr.startswith('sav'):
+                self.tokens.append(Token(T_SAV, pick_arguments(self.current_instr)))
+                self.advance()     
+
             else:
                 self.error = IllegalCharacterError(self.current_instr)
                 return [], self.error
@@ -247,6 +265,11 @@ class Parser:
                 self.pointer.val = ord(input('Input:')[0])
                 self.advance()
 
+            # Save pos
+            elif token.type == T_SAV:
+                self.pointer.save = self.pos_in_token
+                self.advance()
+
             # No op
             elif token.type == T_NUL:
                 self.advance()
@@ -283,46 +306,56 @@ class Parser:
             #   Math
             # Add value of the pointer to cell in memory
             elif token.type == T_ADD:
-                if token.data: return [], SyntaxError(f'{token.type} has no arguments')
-                self.memory[tuple(self.pointer.pos)] += self.pointer.val
+                if token.data: return [], SyntaxError(self.pos_in_token, f'{token.type} has no arguments')
+                self.memory[self.pointer.pos] += self.pointer.val
                 self.advance()
 
             # Subtract value of the pointer from cell in memory
             elif token.type == T_SUB:
-                if token.data: return [], SyntaxError(f'{token.type} has no arguments')
-                self.memory[tuple(self.pointer.pos)] -= self.pointer.val
+                if token.data: return [], SyntaxError(self.pos_in_token, f'{token.type} has no arguments')
+                self.memory[self.pointer.pos] -= self.pointer.val
                 self.advance()
 
             # Multiply value in memory by pointer 
             elif token.type == T_MUL:
-                if token.data: return [], SyntaxError(f'{token.type} has no arguments')
-                self.memory[tuple(self.pointer.pos)] *= self.pointer.val
+                if token.data: return [], SyntaxError(self.pos_in_token, f'{token.type} has no arguments')
+                self.memory[self.pointer.pos] *= self.pointer.val
                 self.advance()
 
             # Divide value in memory by pointer
             elif token.type == T_DIV:
-                if token.data: return [], SyntaxError(f'{token.type} has no arguments')
-                if (self.memory[tuple(self.pointer.pos)] % self.pointer.val): return [], Error('Math', 'Division rest exist')
-                self.memory[tuple(self.pointer.pos)] = self.memory[tuple(self.pointer.pos)] / self.pointer.val
+                if token.data: return [], SyntaxError(self.pos_in_token, f'{token.type} has no arguments')
+                if not self.pointer.val: return [], MathError(self.pos_in_token, 'Division by 0')
+                self.memory[self.pointer.pos] = self.memory[self.pointer.pos] / self.pointer.val
                 self.advance()
 
             #   Conditionals
             # Jump to line in code
             elif token.type == T_JUM:
-                if not token.data: return [], SyntaxError(f'{token.type} has no arguments')
-                self.pos_in_token = int(token.data[0]) - 1
+                if not token.data: return [], SyntaxError(self.pos_in_token, f'{token.type} has no arguments')
+                try: self.pos_in_token = int(token.data[0]) - 1
+                except ValueError: return [], BadAgrsError(self.pos_in_token, f'{token.type} got bad argument')
                 self.advance()
 
             # Jump if pointer value is 0
             elif token.type == T_JIZ:
-                if not token.data: return [], SyntaxError(f'{token.type} has no arguments')
-                if not self.memory[tuple(self.pointer.pos)]: self.pos_in_token = int(token.data[0]) - 1
+                if not token.data: return [], SyntaxError(self.pos_in_token, f'{token.type} has no arguments')
+                if not self.pointer.val: 
+                    try: self.pos_in_token = int(token.data[0]) - 1
+                    except ValueError: return [], BadAgrsError(self.pos_in_token, f'{token.type} got bad argument')
                 self.advance()
 
             # Jump if pointer is smaller
             elif token.type == T_JIS:
                 if not token.data: return [], SyntaxError(f'{token.type} has no arguments')
-                if self.pointer.val < self.memory[tuple(self.pointer.pos)]: self.pos_in_token = int(token.data[0]) - 1
+                if self.pointer.val < self.memory[self.pointer.pos]: 
+                    try: self.pos_in_token = int(token.data[0]) - 1
+                    except ValueError: return [], BadAgrsError(self.pos_in_token, f'{token.type} got bad argument')
+                self.advance()
+
+            # Jump to saved pos + 1
+            elif token.type == T_JUS:
+                self.pos_in_token = self.pointer.save + 1
                 self.advance()
 
 

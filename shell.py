@@ -14,8 +14,5 @@ while True:
 
         if error: print(error)
         else:
-#            for pos, token in zip(range(len(tokens)), tokens):
-#                print(pos, ': ', token, end="; ", sep='')
-#            print('\n')
             for i in out:
                 print(i, '\n')

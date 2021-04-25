@@ -102,6 +102,9 @@ for token in tokens:
     elif token.data:
         token.data = token.data[0]
 
+
+print(tokens)
+
 for token in tokens:
     if token.type == A.T_NUL:
         token.type = '00h'
@@ -132,13 +135,6 @@ for token in tokens:
     elif token.type == A.T_JUM:
         token.type = '0Dh'
 tokens = tokens[1:]
-
-out = ''
-for token in tokens:
-    out += token.type
-    if token.data: out += ', ' + str(token.data)
-    out += ', '
-out = out[:-2]
 
 instructions = split_list(tokens, 16)
 g = ''

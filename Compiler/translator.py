@@ -216,7 +216,7 @@ for tokens in instructions:
         out += token.type
         if token.data != None: out += ', ' + str(token.data)
         out += ', '
-    out = out[:-2] + f'\ninstructions{j} db '
+    out = out[:-2] + f'\ninstructions{j} dd '
     g += out
     j += 1 
 g = g[:-18]

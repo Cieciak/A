@@ -69,12 +69,10 @@ class Error:
     def __init__(self, type_, place = None, details = None):
         self.type = type_
         self.details = details
-        self.place = place
     
     def __repr__(self):
         result = f'{self.type} Error'
         if self.details: result += f': {self.details}'
-        if self.place != None: result += f'\n    At line {self.place}'
         return result
 
 class IllegalCharacterError(Error):

@@ -1,21 +1,12 @@
-import A, sys
+from os import error
+import sys, A
 
-with open(sys.argv[1], 'r') as f:
-    data = f.read()
+code_file = sys.argv[1]
+code = open(code_file, 'r').read()
+lexer = A.Lexer(code)
 
-lexer = A.Lexer(data)
-tokens, error = lexer.analyze_code()
+tokens, error = lexer.tokenize()
 
 if error: print(error)
-else:
-    parser = A.Parser(tokens)
-    out, error = parser.run()
-
-    if error: print(error)
-    else:
-        for pos, token in zip(range(len(tokens)), tokens):
-            print(pos, ': ', token, end="; ", sep='')
-        print('\n')
-        for i in out:
-            print(i, '\n')
-input()
+if not error:
+    

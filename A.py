@@ -14,7 +14,7 @@ T_NOP = 'NO OPERATION'
 T_POS = 'POINTER SET POSITION'
 T_PSV = 'POINTER SET VALUE'
 T_POW = 'POINTER WRITE CELL'
-T_POS = 'POINTER READ CELL'
+T_POR = 'POINTER READ CELL'
 
 # User IO
 T_INP = 'USER INPUT'
@@ -52,7 +52,7 @@ class Token:
 
     def __repr__(self):
         out = self.type
-        if self.data: out += f':{self.data}'
+        if self.data: out += ':' + str(self.data)
         return out
 
 class Lexer:
@@ -68,12 +68,15 @@ class Lexer:
         to_analyze = self.text.replace('|', '\n').split('\n')
         analyzed = []
         for line in to_analyze:
+            if not line:
+                line = 'nop'
             analyzed.append(line.strip())
         self.code = analyzed
 
     def advance(self):
         self.pos_in_code += 1
         self.current_instruction = self.code[self.pos_in_code] if self.pos_in_code < len(self.code) else None
+
 
     def tokenize(self):
         tokens = []
@@ -104,7 +107,7 @@ class Lexer:
                 if args:
                     error = Error('Excess Arument Error', '\"POINTER READ CELL\" operator should have no aguments')
                 else:
-                    tokens.append(Token(T_POS))
+                    tokens.append(Token(T_POR))
             elif operator == 'nul':
                 tokens.append(Token(T_NOP))
             elif operator == 'inp':
@@ -112,7 +115,7 @@ class Lexer:
                     error = Error('Excess Arument Error', '\"INPUT\" operator should have no aguments')
                 else:
                     tokens.append(Token(T_INP))
-            elif operator == 'ptr':
+            elif operator == 'prt':
                 if args:
                     error = Error('Excess Arument Error', '\"PRINT\" operator should have no aguments')
                 else:
@@ -162,6 +165,10 @@ class Lexer:
                     error = Error('Missing Args', '\"IF GREATER\" operator should have at least one argument')
                 else:
                     tokens.append(Token(T_IFG, args))
+            elif operator == 'nop':
+                tokens.append(Token(T_NOP, args))
+            else:
+                error = Error('Unknown Operator')
             self.advance()
         return tokens, error
 

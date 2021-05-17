@@ -33,6 +33,12 @@ T_IFS = 'JUMP IF SMALLER'
 T_IFE = 'JUMP IF EQUAL'
 T_IFG = 'JUMP IF GREATER'
 
+## 0.1v
+
+T_LAB = 'LABEL'
+
+T_JUL = 'JUMP TO LABEL'
+
 class Error:
     
     def __init__(self, type_, details = None):
@@ -167,6 +173,8 @@ class Lexer:
                     tokens.append(Token(T_IFG, args))
             elif operator == 'nop':
                 tokens.append(Token(T_NOP, args))
+            elif operator == 'lab':
+                tokens.append(Token(T_LAB, args))
             else:
                 error = Error('Unknown Operator')
             self.advance()

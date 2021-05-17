@@ -63,4 +63,6 @@ if not error:
         if index == len(tokens):
             running = False
 
-if not error: print(memory)
+if not error: 
+    print(memory)
+    print(tokens)

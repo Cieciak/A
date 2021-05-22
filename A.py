@@ -36,8 +36,11 @@ T_IFG = 'JUMP IF GREATER'
 ## 0.1v
 
 T_LAB = 'LABEL'
+T_SAV = 'SAVE'
 
 T_JUL = 'JUMP TO LABEL'
+T_JSV = 'JUMP TO SAVED'
+T_CAL = 'CALL'
 
 class Error:
     
@@ -67,6 +70,7 @@ class Lexer:
         self.text = text
         self.pos_in_code = -1
         self.current_instruction = None
+        self.labels = {}
         self.prepare_code()
         self.advance()
 
@@ -175,8 +179,15 @@ class Lexer:
                 tokens.append(Token(T_NOP, args))
             elif operator == 'lab':
                 tokens.append(Token(T_LAB, args))
+                self.labels[args[0]] = self.pos_in_code
+            elif operator == 'sav':
+                tokens.append(Token(T_SAV, args))
+            elif operator == 'ret':
+                tokens.append(Token(T_JSV, args))
+            elif operator == 'cal':
+                tokens.append(Token(T_CAL, args))
             else:
                 error = Error('Unknown Operator')
             self.advance()
-        return tokens, error
+        return tokens, error, self.labels
 

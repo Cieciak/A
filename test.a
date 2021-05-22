@@ -1,0 +1,25 @@
+def 10 10
+psp 0 0
+
+jmp main
+
+lab print
+    lab start_print
+        psp 0 0
+        por
+        prt
+        psv 1
+        sub
+        por
+        ifz exit_print
+        jmp start_print
+    lab exit_print
+    ret
+
+lab main
+    psp 0 0
+    psv 100
+    pow
+    cal print
+
+nul

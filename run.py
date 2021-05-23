@@ -2,7 +2,13 @@ import sys, time
 import numpy as np
 from A import *
 
-show = False
+try:
+    if sys.argv[2] == 'show':
+        show = True
+    else:
+        show = False
+except:
+    show = False
 
 def make_args_int(token, labels):
     data = token.data

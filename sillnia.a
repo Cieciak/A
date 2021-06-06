@@ -1,0 +1,37 @@
+﻿def 10 10
+
+jmp init
+
+lab silnia
+    psp 0 0
+    por
+    psp 1 0
+    mul
+    psp 0 0
+    psv 1
+    sub
+    por
+    ifz exit_silnia
+    jmp silnia
+    lab exit_silnia
+        ret
+
+lab init
+    psp 1 0
+    psv 1
+    pow
+
+lab main
+    psp 0 0
+    nul Wartość do policzenia silni
+    nul Wyjście jest na pozycji 1 0
+    psv 10
+    pow
+    cal silnia
+    psp 1 0
+    por
+    psp 0 0
+    pow 
+    psp 1 0
+    psv 0
+    mul

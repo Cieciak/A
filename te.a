@@ -1,0 +1,1 @@
+field main 10 10 field second 10 pointer test test @ main: test value 10 test position 1 1 write add read :: test @ second: test position 1 write :: eoc

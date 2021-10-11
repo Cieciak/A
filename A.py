@@ -1,52 +1,9 @@
-from enum import Enum
 from typing import List
-
-class TokenType(Enum):
-    # Keywords
-    eoc = 'END OF CODE'
-    sce = 'SCOPE ENTRY'
-    scx = 'SCOPE EXIT'
-    at = '@'
-    value = 'VALUE'
-    position = 'POSITION'
-    write = 'WRITE'
-    add = 'ADD'
-    read = 'READ'
-    noscope = 'NO FIELD'
-    entry = 'ENTRY'
-    label = 'LABEL'
-    globa = 'GLOBAL'
-    jump = 'JUMP'
-    iF = 'IF'
-    greater = 'GREATER'
-    smaller = 'SMALLER'
-    equal = 'EQUAL'
-
-    # Data structures
-    field = 'FIELD'
-    pointer = 'POINTER'
-    
-    # Data types
-    int = 'INTEGER'
-    float = 'FLOAT'
-    name = 'NAME'
-
-    # Data values
-    true = 'True'
-    false = 'False'
-
-class Token:
-
-    def __init__(self, type, data = None) -> None:
-        self.type = type
-        self.data = data
-
-    def __repr__(self) -> str:
-        out = f'{self.type}'
-        if self.data: out += f': {self.data}'
-        return out
+from tokens import *
 
 def tokenize(text: str) -> List[Token]:
+
+    # Clean lines and prepare for tokenization
     clear_lines = [x.strip() for x in text.splitlines() if x]
     raw_tokens = []
     for line in clear_lines:
@@ -56,55 +13,67 @@ def tokenize(text: str) -> List[Token]:
             else:
                 raw_tokens.append(token)
 
+    # Pretokenize
     print(raw_tokens)
     tokens = [] 
     for token in raw_tokens:
         if token == 'field':
-            tokens.append(Token(TokenType.field))
+            tokens.append(FieldToken())
         elif token == 'pointer':
-            tokens.append(Token(TokenType.pointer))
+            tokens.append(PointerToken)
         elif token == '@':
-            tokens.append(Token(TokenType.at))
+            tokens.append(AtToken())
         elif token == ':':
-            tokens.append(Token(TokenType.sce))
+            tokens.append(EnterScopeToken())
         elif token == '::':
-            tokens.append(Token(TokenType.scx))
+            tokens.append(ExitScopeToken())
         elif token == 'value':
-            tokens.append(Token(TokenType.value))
+            tokens.append(ValueToken())
         elif token == 'position':
-            tokens.append(Token(TokenType.position))
+            tokens.append(PositionToken())
         elif token == 'write':
-            tokens.append(Token(TokenType.write))
+            tokens.append(WriteToken())
         elif token == 'add':
-            tokens.append(Token(TokenType.add))
+            tokens.append(AddToken())
         elif token == 'read':
-            tokens.append(Token(TokenType.read))
+            tokens.append(ReadToken())
         elif token == 'eoc':
-            tokens.append(Token(TokenType.eoc))
+            tokens.append(EndOfCodeToken())
         elif token == 'noscope':
-            tokens.append(Token(TokenType.noscope))
+            tokens.append(NoScopeToken())
         elif token == 'entry':
-            tokens.append(Token(TokenType.entry))
+            tokens.append(EntryToken())
         elif token == 'label':
-            tokens.append(Token(TokenType.label))
+            tokens.append(LabelToken())
         elif token == 'global':
-            tokens.append(Token(TokenType.globa))
+            tokens.append(GlobalToken())
         elif token == 'if':
-            tokens.append(Token(TokenType.iF))
+            tokens.append(IfToken())
         elif token == 'jump':
-            tokens.append(Token(TokenType.jump))
+            tokens.append(JumpToken())
         elif token == 'greater':
-            tokens.append(Token(TokenType.greater))
+            tokens.append(GreaterToken())
         elif token == 'smaller':
-            tokens.append(Token(TokenType.smaller))
+            tokens.append(SmallerToken())
         elif token == 'equal':
-            tokens.append(Token(TokenType.equal))
+            tokens.append(EqualToken())
         elif token == 'true':
-            tokens.append(Token(TokenType.true))
+            tokens.append(TrueToken())
         elif token == 'false':
-            tokens.append(Token(TokenType.false))
+            tokens.append(FalseToken())
 
-    return tokens
+        elif token.isdigit(): tokens.append(IntToken(data=int(token)))
+        else: tokens.append(NameToken(data=token))
+
+    final_tokens = []
+    while tokens:
+        match tokens:
+            case [FieldToken(), *_]:
+                print('Found field declaration!')
+
+        tokens.pop(0)
+
+    return final_tokens
 
 if __name__ == '__main__':
     with open('test.a', 'r') as file:

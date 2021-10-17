@@ -1,0 +1,22 @@
+field main 10
+
+pointer test
+pointer control
+
+entry begin
+
+test @ main:
+
+    global label begin
+
+    test position 0
+    test value 1
+
+    label loop
+
+    add
+
+    jump loop
+::
+
+eoc

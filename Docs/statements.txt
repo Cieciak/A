@@ -1,4 +1,0 @@
-If statement:
-    if <pointer> smaller|equal|greater <pointer> <label>
-
-    if <pointer> true|false <label>

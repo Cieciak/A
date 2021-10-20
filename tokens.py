@@ -172,3 +172,28 @@ class FalseToken(Token):
     
     def __init__(self, typ=TokenType.false, data=None) -> None:
         super().__init__(typ=typ, data=data)
+
+DICT = {
+    'field': FieldToken,
+    'pointer': PointerToken,
+    '@': AtToken,
+    ':': EnterScopeToken,
+    '::': ExitScopeToken,
+    'value': ValueToken,
+    'position': PositionToken,
+    'write': WriteToken,
+    'add': AddToken,
+    'read': ReadToken,
+    'eoc': EndOfCodeToken,
+    'noscope': NoScopeToken,
+    'entry': EntryToken,
+    'label': LabelToken,
+    'global': GlobalToken,
+    'if': IfToken,
+    'jump': JumpToken,
+    'greater': GreaterToken,
+    'equal': EqualToken,
+    'smaller': SmallerToken,
+    'true': TrueToken,
+    'false': FalseToken,
+}

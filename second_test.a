@@ -1,13 +1,19 @@
 field main 10
+field secd 10 2
 
 pointer test
 pointer control
 
 entry begin
 
-test @ main:
+control @ main:
 
     global label begin
+
+    control position 0
+    control value 10
+
+test @ main:
 
     test position 0
     test value 1
@@ -16,7 +22,11 @@ test @ main:
 
     add
 
-    jump loop
+    read
+
+    test position 1
+
+    write
 ::
 
 eoc

@@ -1,109 +1,116 @@
-from typing import List
-import A
+from typing import Any, Dict, List
+import A, sys
 from tokens import *
 
 class Field:
 
-    def __init__(self, shape, name) -> None:
-        self.size = 1
-        self.name = name
-        for i in shape:
-            self.size *= i
+    def __init__(self, size) -> None:
+        self.size = size
+        self.content = [0]
+        for i in size:
+            self.content = self.content * i
 
-        self.content = [0] * self.size
+    def setitem(self, index, value):
+        o = 1
+        for i in tuple(index):
+            o *= i
+        self.content[o] = value
 
-    def __getitem__(self, index):
-        return self.content[(index)]
+    def getitem(self, index):
+        o = 1
+        for i in tuple(index):
+            o *= i
+        return self.content[o]
 
     def __repr__(self) -> str:
         return f'{self.content}'
 
 class Pointer:
 
-    def __init__(self, name) -> None:
-        self.position = None
-        self.value = None
-        self.name = name
+    def __init__(self) -> None:
+       self.position = None
+       self.value = None
 
-    def set_position(self, place):
-        self.position = place
+    def __repr__(self) -> str:
+        return f'{self.position}, {self.value}'
 
-    def set_value(self, value):
+    def set_val(self, value):
         self.value = value
 
-    def __repr__(self) -> str:
-        return f'{self.value}'
+    def set_pos(self, position):
+        self.position = position 
 
-class Scope:
+file_name = sys.argv[1]
+tokens, glabels = A.tokenize(file_name)
 
-    def __init__(self, name: str, tokens) -> None:
-        self.name = name
-        self.code = tokens
-        self.labels: List = []
+FIELDS: Dict[str, Field] = {}
+POINTERS: Dict[str, Pointer] = {}
 
-    def __repr__(self) -> str:
-        header = str(self.name) + ':\n'
-        labels = '    labels:\n        ' + '\n        '.join([str(x) for x in self.labels])
-        code = '\n    tokens:\n        ' + '\n        '.join([str(x) for x in self.code])
+running = True
+index = 0
+while running:
+    token = tokens[index]
+    match token:
+        case FieldToken():
+            FIELDS[token.data['name']] = Field(size=token.data['shape'])
+        case PointerToken():
+            POINTERS[token.data['name']] = Pointer()
+        case EntryToken():
+            index = glabels[token.data['name']]['scope']['index']
 
-        return header + labels + code
+        case PositionToken():
+            POINTERS[token.data['pointer']].set_pos(token.data['shape'])
 
-    def add_label(self, label):
-        self.labels.append(label)
+        case ValueToken():
+            POINTERS[token.data['pointer']].set_val(token.data['value'])
 
-with open(input('File: '), 'r') as file:
-    text = file.read()
-    file.close()
+        case AddToken():
+            f = FIELDS[token.data['scope']['name']]
+            p = POINTERS[token.data['scope']['pointer']]
+            f.setitem(p.position, p.value + f.getitem(p.position))
 
-tokens = A.tokenize(text)
+        case ReadToken():
+            f = FIELDS[token.data['scope']['name']]
+            p = POINTERS[token.data['scope']['pointer']]
+            p.value = f.getitem(p.position)
 
-CURRENT_SCOPE = None
-CURRENT_POINTER = None
-SCOPES: List[Scope] = []
+        case WriteToken():
+            f = FIELDS[token.data['scope']['name']]
+            p = POINTERS[token.data['scope']['pointer']]
+            f.setitem(p.position, p.value)
 
-GLOBAL_LABELS = []
+        case JumpToken():
+            f = FIELDS[token.data['scope']['name']]
+            p = POINTERS[token.data['scope']['pointer']]
+            l = glabels[token.data['name']]
+            if l['global']: index = l['scope']['index']
+            elif l['scope']['name'] == token.data['scope']['name']:
+                index = l['scope']['index']
 
-code_tokens: List[Token] = []
-while tokens:
-    token = tokens.pop(0)
+        case IfToken():
+            p = POINTERS[token.data['scope']['pointer']]
+            l = glabels[token.data['label']]
+            match token.data['operation']:
+                case 'check':
+                    if p.value: index = l['scope']['index']
+                case TokenType.greater:
+                    one = POINTERS[token.data['operand1']]
+                    two = POINTERS[token.data['operand2']]
 
-    data = token.data
-    if data == None:
-        data = {}
+                    if one.value > two.value: index = l['scope']['index']
 
-    data['scope'] = CURRENT_SCOPE
-    data['pointer'] = CURRENT_POINTER
-    token.data = data
+                case TokenType.equal:
+                    one = POINTERS[token.data['operand1']]
+                    two = POINTERS[token.data['operand2']]
 
-    if isinstance(token, EnterScopeToken):
-        CURRENT_POINTER = token.data['pointer_name']
-        CURRENT_SCOPE = token.data['field_name']
-    elif isinstance(token, ExitScopeToken):
-        CURRENT_SCOPE = CURRENT_POINTER = None
+                    if one.value == two.value: index = l['scope']['index']
 
-    code_tokens.append(token)
+                case TokenType.smaller:
+                    one = POINTERS[token.data['operand1']]
+                    two = POINTERS[token.data['operand2']]
 
-scope = None
-point = None
-
-scope_list = []
-
-for token in code_tokens:
-
-    if scope == token.data['scope']:
-        scope_list.append(token)
-    else:
-        SCOPES.append(Scope(scope, scope_list))
-        scope_list = []
-
-    scope = token.data['scope']
-
-for token in code_tokens:
-
-    if isinstance(token, LabelToken):
-        pass
-
-SCOPES[0].labels.append('a')
-
-for i in SCOPES:
-    print(i)
+                    if one.value < two.value: index = l['scope']['index']
+   
+        case EndOfCodeToken():
+            running = False
+    index += 1

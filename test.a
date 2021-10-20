@@ -1,41 +1,23 @@
 field main 10 10
+field second 1
+pointer dummy
 
-field second 10
+entry begin
 
-pointer test
-pointer second_pointer
+dummy @ main:
 
-entry main
+    global label begin
+    dummy position 0 0
+    dummy value 1
 
-test @ main:
-  test value 10
-  test position 1 1
-  write
-  add
-  read
+    write
+    add
+    read
 ::
 
-test @ second:
-  test position 1
-  write
+dummy @ second:
+
+    dummy position 0
+    write
 ::
-
-noscope:
-
-    global label main
-
-    jump test_two
-
-    label test_one
-
-    jump if second_pointer true exit
-
-    label test_two
-
-    jump if test greater second_pointer test_one
-
-    label exit
-
-::
-
 eoc

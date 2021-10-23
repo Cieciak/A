@@ -114,3 +114,5 @@ while running:
         case EndOfCodeToken():
             running = False
     index += 1
+
+print(FIELDS)

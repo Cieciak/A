@@ -1,0 +1,8 @@
+field owo 2
+
+dummy @ owo:
+    dummy position 1
+    dummy value 10
+    write
+::
+eoc

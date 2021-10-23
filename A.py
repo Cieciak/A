@@ -3,8 +3,14 @@ from tokens import *
 
 def parse_file(path: str) -> List[str]:
     '''Parse lines from a file'''
+    clear_lines: List[str] = []
     with open(path, 'r') as file:
-        clear_lines = [x.strip() for x in file.read().splitlines() if x]
+        lines = file.read().splitlines()
+        for line in lines:
+            if line.startswith('insert '):
+                clear_lines.extend(parse_file(line[8:-1]))
+            elif line:
+                clear_lines.append(line.strip())
     return clear_lines
 
 def separate_tokens(lines: List[str]) -> List[str]:

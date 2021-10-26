@@ -10,7 +10,7 @@ A uses only two data types:
 >Pointers
 
 ### Field:
-    Used for storing data, it can't be resized.
+    Used for storing data, it can't be resized. But it can be of any size and order.
     
 ### Pointer:
     User for moving and operationg on data.
@@ -31,6 +31,10 @@ A uses only two data types:
 `read` - Read at pointer position
 
 `add` - Add pointer value to pointer position
+
+### Directives:
+
+`insert` - Insert A code from other file
 
 `eoc` - End of code
 
@@ -76,30 +80,37 @@ Scope:
     ::
 ```
 
+Inserting `A` file:
+```
+    insert "<filename.a>"
+```
+
 ## Code samples:
 
 ```
-field main 10 10
-field second 1
-pointer dummy
+field main 10 10        - Define field main with size of 10x10 
+field second 1          - Define field second with size of 1
+pointer dummy           - Define pointer dummy
 
-entry begin
+entry begin             - Jump to entry point
 
-dummy @ main:
+dummy @ main:           - Scope entry
 
-    global label begin
-    dummy position 0 0
-    dummy value 1
+    global label begin  - Global label
+    dummy position 0 0  - Set dummy position to cell (0,0)
+    dummy value 1       - Set dummy value to 1
 
     write
     add
     read
-::
+::                      - Exit dummy @ main scope
 
 dummy @ second:
 
     dummy position 0
     write
 ::
-eoc
+eoc                     - Finish code
 ```
+* And no, that's not how comments work in `A`.
+  In fact it doesn't have comments. 

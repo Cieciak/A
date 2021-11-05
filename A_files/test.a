@@ -1,5 +1,5 @@
 field main 10 10
-field second 1
+field second 20
 pointer dummy
 
 entry begin
@@ -13,14 +13,16 @@ dummy @ main:
     write
     add
     read
+    out
 ::
 
 dummy @ second:
 
     dummy position 0
-    write
+    in
+    read
+    out
 ::
 
-insert "e.a"
 
 eoc

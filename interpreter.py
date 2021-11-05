@@ -23,7 +23,16 @@ class Field:
         return self.content[o]
 
     def __repr__(self) -> str:
-        return f'{self.content}'
+        out = [str(x) for x in self.content]
+        return ' '.join(out)
+
+    def transmit(self, data: str | List[int | float], begin):
+        start = 1
+        for i in begin:
+            start *= i
+        length = len(data)
+        for i in range(length):
+            self.content[start + i] = data[i]
 
 class Pointer:
 
@@ -113,6 +122,15 @@ while running:
    
         case EndOfCodeToken():
             running = False
+
+        case OutputToken():
+            print(FIELDS[token.data['scope']['name']], end='')
+
+        case InputToken():
+            p = POINTERS[token.data['scope']['pointer']]
+            FIELDS[token.data['scope']['name']].transmit(input(), p.position)
+
+
     index += 1
 
-print(FIELDS)
+#print(FIELDS)

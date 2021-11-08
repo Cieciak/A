@@ -282,26 +282,29 @@ def tokenize(path: str, loud: int = 0) -> List[Token]:
                 del tokens[0]
                 final_tokens.append(EndOfCodeToken(data=data))
 
-            case [OutputToken(), *_]:
+            case [OutputToken(), NameToken(), NameToken(), *_]:
                 data = {
+                    'object': tokens[1].data,
+                    'type': PARSERS[tokens[2].data],
                     'scope': {
                         'index': SCOPE_INDEX,
                         'name': CURRENT_SCOPE,
                         'pointer': CURRENT_POINT,
                     }
                 }
-                del tokens[0]
+                del tokens[:3]
                 final_tokens.append(OutputToken(data=data))
 
-            case [InputToken(), *_]:
+            case [InputToken(), NameToken(), *_]:
                 data = {
+                    'type': PARSERS[tokens[1].data],
                     'scope': {
                         'index': SCOPE_INDEX,
                         'name': CURRENT_SCOPE,
                         'pointer': CURRENT_POINT,
                     }
                 }
-                del tokens[0]
+                del tokens[:2]
                 final_tokens.append(InputToken(data=data))
 
             case _:
@@ -319,5 +322,6 @@ if __name__ == '__main__':
     import sys
     file_name = sys.argv[1]
 
-    response = tokenize(file_name, loud=7)
-    print(response[1])
+    response = tokenize(file_name, loud=0)
+    for i in response[0]:
+        print(i)

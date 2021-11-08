@@ -1,8 +1,9 @@
-field owo 2
+field owo 100
+pointer main
 
-dummy @ owo:
-    dummy position 1
-    dummy value 10
-    write
-::
+main @ owo:
+    main position 0
+    in int
+    out owo int
+
 eoc

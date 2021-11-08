@@ -20,6 +20,7 @@ class TokenType(Enum):
     greater = 'GREATER'
     smaller = 'SMALLER'
     equal = 'EQUAL'
+
     #I/O Keywords
     input = 'IN'
     output = 'OUT'
@@ -186,6 +187,11 @@ class OutputToken(Token):
     def __init__(self, typ=TokenType.output , data=None) -> None:
         super().__init__(typ=typ, data=data)
 
+
+PARSERS = {
+    'char': str,
+    'int': int,
+}
 
 DICT = {
     'field': FieldToken,

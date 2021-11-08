@@ -6,24 +6,24 @@ class Field:
 
     def __init__(self, size) -> None:
         self.size = size
-        self.content = [0]
+        self.__content = [0]
         for i in size:
-            self.content = self.content * i
+            self.__content = self.__content * i
 
     def setitem(self, index, value):
         o = 1
         for i in tuple(index):
             o *= i
-        self.content[o] = value
+        self.__content[o] = value
 
     def getitem(self, index):
         o = 1
         for i in tuple(index):
             o *= i
-        return self.content[o]
+        return self.__content[o]
 
     def __repr__(self) -> str:
-        out = [str(x) for x in self.content]
+        out = [str(x) for x in self.__content]
         return ' '.join(out)
 
     def transmit(self, data: str | List[int | float], begin):
@@ -32,7 +32,10 @@ class Field:
             start *= i
         length = len(data)
         for i in range(length):
-            self.content[start + i] = data[i]
+            self.__content[start + i] = data[i]
+
+    def data(self) -> List[int | float]:
+        return self.__content
 
 class Pointer:
 
@@ -124,7 +127,20 @@ while running:
             running = False
 
         case OutputToken():
-            print(FIELDS[token.data['scope']['name']], end='')
+            try:
+                field = FIELDS[token.data['object']]
+                if token.data['type'] == str:
+                    print(''.join([chr(x) for x in field.data()]))
+                elif token.data['type'] ==  int:
+                    print(' '.join([str(x) for x in field.data()]))
+            except KeyError:
+                pointer = POINTERS[token.data['object']]
+                if token.data['type'] == str:
+                    print(chr(pointer.value))
+                elif token.data['type'] == int:
+                    print(pointer.value)
+
+
 
         case InputToken():
             p = POINTERS[token.data['scope']['pointer']]

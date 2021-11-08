@@ -1,0 +1,60 @@
+field main 15
+pointer dummy
+
+entry begin
+
+dummy @ main:
+
+    global label begin
+    dummy position 0
+    dummy value 72
+    write
+
+    dummy position 1
+    dummy value 101
+    write
+
+    dummy position 2
+    dummy value 108
+    write
+
+    dummy position 3
+    dummy value 108
+    write
+
+    dummy position 4
+    dummy value 111
+    write
+
+    dummy position 5
+    dummy value 32
+    write
+
+    dummy position 6
+    dummy value 87
+    write
+
+    dummy position 7
+    dummy value 111
+    write
+
+    dummy position 8
+    dummy value 114
+    write
+
+    dummy position 9
+    dummy value 108
+    write
+
+    dummy position 10
+    dummy value 100
+    write
+
+    dummy position 11
+    dummy value 33
+    write
+
+    out main char
+::
+
+eoc

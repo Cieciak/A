@@ -1,6 +1,15 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 import A, sys
 from tokens import *
+
+def construct_index(tuple: Tuple[int], shape: Tuple[int]) -> int:
+    '''Returns tuple casted onto shape of field'''
+    shape = (1, ) + shape
+    index = 0
+    for value, size in zip(tuple, shape):
+        index += value * size
+    return index
+
 
 class Field:
 
@@ -55,19 +64,25 @@ class Pointer:
 file_name = sys.argv[1]
 tokens, glabels = A.tokenize(file_name)
 
-FIELDS: Dict[str, Field] = {}
-POINTERS: Dict[str, Pointer] = {}
+FIELDS: Dict[str, Field] = {}     # Dictionary of fields
+POINTERS: Dict[str, Pointer] = {} # Dictionary of pointers
 
 running = True
-index = 0
+index = 0 # Line index
 while running:
     token = tokens[index]
     match token:
+
         case FieldToken():
+            # Field declaration
             FIELDS[token.data['name']] = Field(size=token.data['shape'])
+
         case PointerToken():
+            # Pointer declaration
             POINTERS[token.data['name']] = Pointer()
+
         case EntryToken():
+            # Jump to entry
             index = glabels[token.data['name']]['scope']['index']
 
         case PositionToken():
@@ -105,6 +120,7 @@ while running:
             match token.data['operation']:
                 case 'check':
                     if p.value: index = l['scope']['index']
+                    
                 case TokenType.greater:
                     one = POINTERS[token.data['operand1']]
                     two = POINTERS[token.data['operand2']]
@@ -127,26 +143,46 @@ while running:
             running = False
 
         case OutputToken():
-            try:
-                field = FIELDS[token.data['object']]
+            if token.data['object'] == token.data['scope']['name']:
+                # Print field
+                to_cast = FIELDS[token.data['object']].data()
                 if token.data['type'] == str:
-                    print(''.join([chr(x) for x in field.data()]))
-                elif token.data['type'] ==  int:
-                    print(' '.join([str(x) for x in field.data()]))
-            except KeyError:
-                pointer = POINTERS[token.data['object']]
-                if token.data['type'] == str:
-                    print(chr(pointer.value))
+                    # Output as a string
+                    print(''.join([chr(n) for n in to_cast]), end='')
+
                 elif token.data['type'] == int:
-                    print(pointer.value)
+                    # Output as a list of numbers
+                    print(' '.join([str(n) for n in to_cast]), end='')
 
+            elif token.data['object'] == token.data['scope']['pointer']:
+                # Print pointer
+                to_cast = POINTERS[token.data['object']].value
+                if token.data['type'] == str:
+                    # Output as a string
+                    print(chr(to_cast), end='')
+                elif token.data['type'] == int:
+                    # Output as a number
+                    print(str(to_cast), end='')
 
+            else:
+                print('You are in different scopes')
 
         case InputToken():
-            p = POINTERS[token.data['scope']['pointer']]
-            FIELDS[token.data['scope']['name']].transmit(input(), p.position)
+            # Take input from a user and transmit it on a scope field
+            pointer = POINTERS[token.data['scope']['pointer']]
+            field = FIELDS[token.data['scope']['name']]
 
+            if token.data['type'] == str:
+                # Ask for input as string
+                to_cast = [ord(char) for char in input()]
+
+            elif token.data['type'] == int:
+                # Ask for input as integer
+                to_cast = [int(input())]
+
+            else:
+                print('How?')
+            
+            field.transmit(to_cast, pointer.position)
 
     index += 1
-
-#print(FIELDS)

@@ -54,6 +54,10 @@ dummy @ main:
     dummy value 33
     write
 
+    dummy position 12
+    dummy value 10
+    write
+
     out main char
 ::
 

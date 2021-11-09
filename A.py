@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List, Tuple
 from tokens import *
 
 def parse_file(path: str) -> List[str]:
@@ -24,7 +24,7 @@ def separate_tokens(lines: List[str]) -> List[str]:
                 out.append(token)
     return out
 
-def tokenize(path: str, loud: int = 0) -> List[Token]:
+def tokenize(path: str, loud: int = 0) -> Tuple[List[Token], Any]:
 
     # Clean lines and prepare for tokenization
     response = parse_file(path)
@@ -308,7 +308,7 @@ def tokenize(path: str, loud: int = 0) -> List[Token]:
                 final_tokens.append(InputToken(data=data))
 
             case _:
-                print('Unmathched token', tokens[0])
+                print('Unmathched token', tokens[0], tokens[0].data)
 
                 del tokens[0]
 

@@ -1,0 +1,14 @@
+field owo 1
+
+pointer main
+
+main @ owo:
+    main position 0
+    in int
+    read
+    label loop
+        out main int
+        jump if main true loop
+::
+
+eoc

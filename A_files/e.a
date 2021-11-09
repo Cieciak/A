@@ -1,9 +1,0 @@
-field owo 100
-pointer main
-
-main @ owo:
-    main position 0
-    in int
-    out owo int
-
-eoc

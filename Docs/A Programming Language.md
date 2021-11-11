@@ -32,6 +32,10 @@ A uses only two data types:
 
 `add` - Add pointer value to pointer position
 
+`in` - Get data from a user
+
+`out` - Return data to a user
+
 ### Directives:
 
 `insert` - Insert A code from other file
@@ -63,6 +67,16 @@ Entry:
 Jump:
 ```
     jump <label>
+```
+
+In:
+```
+    in <type>
+```
+
+Out:
+```
+    out <object> <type>
 ```
 
 If:

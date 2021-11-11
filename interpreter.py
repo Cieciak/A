@@ -86,10 +86,16 @@ while running:
             index = glabels[token.data['name']]['scope']['index']
 
         case PositionToken():
-            POINTERS[token.data['pointer']].set_pos(token.data['shape'])
+            if token.data['pointer'] == token.data['scope']['pointer']:
+                POINTERS[token.data['pointer']].set_pos(token.data['shape'])
+            else:
+                print('Wrong pointer')
 
         case ValueToken():
-            POINTERS[token.data['pointer']].set_val(token.data['value'])
+            if token.data['pointer'] == token.data['scope']['pointer']:
+                POINTERS[token.data['pointer']].set_val(token.data['value'])
+            else:
+                print('Wrong pointer')
 
         case AddToken():
             f = FIELDS[token.data['scope']['name']]

@@ -21,6 +21,10 @@ class TokenType(Enum):
     smaller = 'SMALLER'
     equal = 'EQUAL'
 
+    #I/O Keywords
+    input = 'IN'
+    output = 'OUT'
+
     # Data structures
     field = 'FIELD'
     pointer = 'POINTER'
@@ -173,6 +177,22 @@ class FalseToken(Token):
     def __init__(self, typ=TokenType.false, data=None) -> None:
         super().__init__(typ=typ, data=data)
 
+class InputToken(Token):
+    
+    def __init__(self, typ=TokenType.input, data=None) -> None:
+        super().__init__(typ=typ, data=data)
+
+class OutputToken(Token):
+    
+    def __init__(self, typ=TokenType.output , data=None) -> None:
+        super().__init__(typ=typ, data=data)
+
+
+PARSERS = {
+    'char': str,
+    'int': int,
+}
+
 DICT = {
     'field': FieldToken,
     'pointer': PointerToken,
@@ -196,4 +216,6 @@ DICT = {
     'smaller': SmallerToken,
     'true': TrueToken,
     'false': FalseToken,
+    'in': InputToken,
+    'out': OutputToken,
 }
